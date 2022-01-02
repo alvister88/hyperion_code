@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode;
-//nani the frick test
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -38,6 +38,7 @@ public class LinearSlide_VelDrive3c extends LinearOpMode{
     DcMotorEx motorCRSL;
 
     Servo slideServo;
+    Servo servoOuttakeDoor;
 
     boolean LeftTriggerOn = false;
     boolean RightTriggerOn = false;
@@ -97,10 +98,13 @@ public class LinearSlide_VelDrive3c extends LinearOpMode{
         waitForStart();
 
         double motorPower = 0;
-//        double motorPower = 0;
+        //double motorPower = 0;
+
+        motorLSF.setTargetPositionTolerance(50);
+        motorLSD.setTargetPositionTolerance(50);
 
         while (opModeIsActive()) {
-            cycle_timer.reset();
+            // cycle_timer.reset();
             LeftTriggerOn = Math.abs(gamepad1.left_trigger) > 0.1;
             RightTriggerOn = Math.abs(gamepad1.right_trigger) > 0.1;
 
@@ -134,39 +138,35 @@ public class LinearSlide_VelDrive3c extends LinearOpMode{
                 telemetry.addData("direction", direction);
                 switch (direction) {
                     case UP:
-                        telemetry.addData("time diff", runtime.time() - prevTime);
-                        //if (motorLSF.getCurrentPosition() >= (newTarget1 - 100) && motorLSF.getCurrentPosition() <= (newTarget1 + 100)
-                        //&& motorLSD.getCurrentPosition() >= (-newTarget1 - 100) && motorLSD.getCurrentPosition() <= (-newTarget1 + 100) {
-                        if ((Math.abs(motorLSF.getCurrentPosition() - newTarget1) <= 50) && (Math.abs(motorLSD.getCurrentPosition()) - Math.abs(newTarget1)) <= 50){
+                        // if ((Math.abs(motorLSF.getCurrentPosition() - newTarget1) <= 50) && (Math.abs(motorLSD.getCurrentPosition()) - Math.abs(newTarget1)) <= 50){
+                        if (motorLSF.getCurrentPosition() == newTarget1 && motorLSD.getCurrentPosition() == -newTarget1){
                             direction = slideMove.DOWN;
                             prevTime = runtime.time();
                         }
                         else{
-                            if((runtime.time() - prevTime) >= 1.0) {
-                            telemetry.addData("first condition", true);
+                            // if((runtime.time() - prevTime) >= 1.0) {
                             motorLSF.setTargetPosition(newTarget1);
                             motorLSD.setTargetPosition(-newTarget1);
 
                             motorLSF.setPower(0.8);
                             motorLSD.setPower(0.8);
-                            }
+                            // }
                         }
                         break;
                     case DOWN:
-                        //if (motorLSF.getCurrentPosition() >= (newTarget2 - 20) && motorLSF.getCurrentPosition() <= (newTarget2 + 100)
-                        //&& motorLSD.getCurrentPosition() >= (-newTarget2 - 20) && motorLSD.getCurrentPosition() <= (-newTarget2 + 100) {
-                        if ((Math.abs(motorLSF.getCurrentPosition() - newTarget2) <= 50) && (Math.abs(motorLSD.getCurrentPosition()) - Math.abs(newTarget2)) <= 50) {
+                        // if ((Math.abs(motorLSF.getCurrentPosition() - newTarget2) <= 50) && (Math.abs(motorLSD.getCurrentPosition()) - Math.abs(newTarget2)) <= 50) {
+                        if (motorLSF.getCurrentPosition() == newTarget2 && motorLSD.getCurrentPosition() == -newTarget2){
                             direction = slideMove.UP;
                             prevTime = runtime.time();
                         }
                         else{
-                            if((runtime.time() - prevTime) >= 1.0) {
+                            // if((runtime.time() - prevTime) >= 1.0) {
                             motorLSF.setTargetPosition(newTarget2);
                             motorLSD.setTargetPosition(-newTarget2);
 
                             motorLSF.setPower(0.8);
                             motorLSD.setPower(0.8);
-                            }
+                            // }
                         }
                         break;
                 }
@@ -269,7 +269,7 @@ public class LinearSlide_VelDrive3c extends LinearOpMode{
             }
 
             // servo control
-            if (!runServos) {
+            /*
                 if (gamepad1.dpad_up) {
                     slideServo.setPosition(0.25);
                 } else if (gamepad1.dpad_right) {
@@ -281,10 +281,22 @@ public class LinearSlide_VelDrive3c extends LinearOpMode{
                 } else {
                     slideServo.setPosition(0.0);
                 }
+
+             */
+
+            if (gamepad1.dpad_up) {
+                servoOuttakeDoor.setPosition(0.25);
+            } else if (gamepad1.dpad_right) {
+                servoOuttakeDoor.setPosition(0.5);
+            } else if (gamepad1.dpad_down) {
+                servoOuttakeDoor.setPosition(0.75);
+            } else if (gamepad1.dpad_left) {
+                servoOuttakeDoor.setPosition(1);
+            } else {
+                servoOuttakeDoor.setPosition(0.0);
             }
 
             slideServoPosition = slideServo.getPosition();
-
 
             // Drivetrain controls
             // TODO: reorganize this stuff
@@ -314,7 +326,6 @@ public class LinearSlide_VelDrive3c extends LinearOpMode{
             }
              */
 
-
             if(Math.abs(mlfVelocity) > 1.0 || Math.abs(mlbVelocity) > 1.0 || Math.abs(mrfVelocity) > 1.0 || Math.abs(mrbVelocity) > 1.0) {
                 double maxVal = Math.max(Math.max(Math.abs(mlfVelocity), Math.abs(mlbVelocity)), Math.max(Math.abs(mrfVelocity), Math.abs(mrbVelocity)));
                 mlfVelocity /= maxVal;
@@ -329,7 +340,6 @@ public class LinearSlide_VelDrive3c extends LinearOpMode{
             telemetry.addData("Status", "Running");
             telemetry.addData("Servo position", slideServoPosition);
             telemetry.addData("Cycle Time (ms)", cycle_timer.milliseconds());
-            prevTime = getRuntime();
         }
         stopDTMotors();
 
@@ -347,6 +357,7 @@ public class LinearSlide_VelDrive3c extends LinearOpMode{
         motorCRSL = hardwareMap.get(DcMotorEx.class, "CRSL");
 
         slideServo = hardwareMap.servo.get("grabby");
+        servoOuttakeDoor = hardwareMap.servo.get("servoOuttakeDoor");
 
         motorRightFront.setDirection(DcMotorEx.Direction.REVERSE);
         motorRightBack.setDirection(DcMotorEx.Direction.REVERSE);
