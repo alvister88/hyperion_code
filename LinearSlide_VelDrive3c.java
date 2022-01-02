@@ -56,7 +56,7 @@ public class LinearSlide_VelDrive3c extends LinearOpMode{
     int newTarget1;
     int newTarget2;
 
-    double lockedServoPosition = 0;
+    double lockedServoPosition = 1;
     boolean lockedServo = false;
 
     int holdPositionLSF = -2000;
